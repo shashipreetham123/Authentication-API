@@ -133,6 +133,5 @@ The `accessToken` cookie is cleared.
 
 - Passwords are never stored as plain text.
 - JWTs are stored in an HttpOnly cookie.
-- JWTs expire after **1 hour**.
 - Do not commit `.env` or expose `JWT_SESSION_SECRET`.
 - The current cookie configuration is intended for local HTTP development. Use HTTPS and `secure: true` in production.
