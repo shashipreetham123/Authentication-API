@@ -12,12 +12,15 @@ async function connectDB() {
 
         const db = client.db(dbname)
 
+        await db.users.createIndex(
+            { username: 1 },
+            { unique: true }
+        );
+
         return db
 
     } catch (error) {
-
-        console.error(error)
-
+        
         throw error
     }
 }

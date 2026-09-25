@@ -18,7 +18,7 @@ const validation = [
 
 ]
 
-function registerValidation(req, res, next) {
+function requestValidation(req, res, next) {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
@@ -30,20 +30,8 @@ function registerValidation(req, res, next) {
     next()
 }
 
-function loginValidation(req, res, next) {
-    const errors = validationResult(req)
-
-    if (!errors.isEmpty()) {
-        return res.status(400).json({
-            errors: errors.array()
-        })
-    }
-
-    next()
-}
 
 module.exports = {
     validation,
-    loginValidation,
-    registerValidation
+    requestValidation
 }

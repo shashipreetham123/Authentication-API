@@ -6,13 +6,13 @@ const argon2 = require("argon2")
 
 const router = express.Router()
 
-const { validation, loginValidation, registerValidation } = require("../middleware/validation")
+const { validation, requestValidation } = require("../middleware/validation")
 
-router.post("/login", validation, loginValidation, async (req, res) => {
+router.post("/login", validation, requestValidation, async (req, res) => {
     try {
         const { username, password } = req.body
 
-        const normalizedUsername = username.toLowerCase()
+        const normalizedUsername = username.toLowerCase().trim()
 
         const db = req.app.locals.db
 
@@ -33,38 +33,31 @@ router.post("/login", validation, loginValidation, async (req, res) => {
 
             const token = jwt.sign(
                 {
-                    userId: user._id.toString(),
                     username: user.username
                 },
-                process.env.JWT_SESSION_SECRET,
-                {
-                    expiresIn: "1h"
-                }
+                process.env.JWT_SESSION_SECRET
             );
 
             res.cookie("accessToken", token, {
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax",
-                maxAge: 60 * 60 * 1000
+                sameSite: "lax"
             });
 
             return res.status(200).json({
                 message: "Authentication Successful",
                 data: {
                     username,
-                    id: user._id
                 }
             })
         } else {
-            return res.status(404).json({
-                message: "Username or Password. Authentication Failed",
+            return res.status(401).json({
+                message: "Username or Password is Incorrect. Authentication Failed",
                 data: null
             })
         }
 
     } catch (err) {
-        console.error(err)
         return res.status(500).json({
             message: "Internal Server Error. Authentication Failed",
             data: null
@@ -72,7 +65,7 @@ router.post("/login", validation, loginValidation, async (req, res) => {
     }
 })
 
-router.post("/register", validation, registerValidation, async (req, res) => {
+router.post("/register", validation, requestValidation, async (req, res) => {
     try {
         const { username, password } = req.body
 
@@ -107,12 +100,11 @@ router.post("/register", validation, registerValidation, async (req, res) => {
 
     } catch (error) {
 
-        console.error(error)
-
         return res.status(500).json({
             message: "Internal Server Error. Unable to Create User",
             data: null
         })
+
     }
 
 })
@@ -122,7 +114,7 @@ router.post("/logout", (req, res) => {
         httpOnly: true,
         secure: false,
         sameSite: "lax",
-        path: "/"
+        maxAge: 60 * 60 * 1000
     });
 
     res.status(200).json({
